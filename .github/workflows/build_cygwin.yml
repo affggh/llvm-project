@@ -1,0 +1,90 @@
+
+name: build_cygwin
+
+on:
+  push:
+    paths:
+      - ".github/workflows/build_cygwin.yml"
+  pull_request:
+    paths:
+      - ".github/workflows/build_cygwin.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Cygwin
+        uses: egor-tensin/setup-cygwin@v3
+        with:
+          platform: x64
+          packages: cmake ninja make gcc-g++ github libiconv-devel zlib-devel clang llvm zip unzip curl sed libpcre-devel libpcre2-devel liblzma-devel gettext gettext-devel libtool automake autoconf po4a patch libdeflate-devel
+
+      - name: Clone source code
+        shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+        run: |
+          git clone --depth=1 https://github.com/affggh/llvm-project.git -b cygwin64 llvm
+
+      - name: Building
+        shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+        run: |
+          cd llvm
+          # build
+          CMAKE_OPTIONS=()
+          RUNTIMES="compiler-rt;libunwind"
+          PROJECTS="clang;clang-tools-extra;lld"
+          TARGETS_TO_BUILD="host"
+
+          CMAKE_OPTIONS+=(
+            -G "Ninja"
+            -B "build"
+            -S "llvm"
+
+            -DCMAKE_INSTALL_PREFIX="$HOME/out"
+            -DLLVM_TARGETS_TO_BUILD="$TARGET_TO_BUILD"
+            -DLLVM_ENABLE_PROJECTS="$PROJECTS"
+            -DLLVM_ENABLE_RUNTIMES="$RUNTIMES"
+            -DLLVM_BUILD_RUNTIME=ON
+
+            -DCMAKE_BUILD_TYPE=Release
+
+            -DLLVM_BUILD_TESTS=OFF
+            -DLLVM_INCLUDE_TESTS=OFF
+            -DLLVM_BUILD_BENCHMARKS=OFF
+            -DLLVM_INCLUDE_BENCHMARKS=OFF
+            -DLLVM_BUILD_EXAMPLES=OFF
+            -DLLVM_INCLUDE_EXAMPLES=OFF
+            -DLLVM_INCLUDE_DOCS=OFF
+
+            -DCLANG_BUILD_TOOLS=ON
+            -DCLANG_ENABLE_ARCMT=ON
+            -DCLANG_ENABLE_STATIC_ANALYZER=ON
+            -DCLANG_INCLUDE_TESTS=OFF
+            -DCLANG_BUILD_EXAMPLES=OFF
+            -DCLANG_INCLUDE_DOCS=OFF
+
+            -DLLVM_INSTALL_UTILS=ON
+
+            -DBUILD_SHARED_LIBS=ON
+          )
+          
+          cmake ${CMAKE_OPTIONS[@]}
+          ninja -C build && ninja -C build install
+
+      - name: Repack out
+        shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+        run: |
+          cd out
+          tar -czvf ../llvm-project-cygwin64.tar.gz ./
+          
+      - name: Upload output to GH-Release
+        uses: ncipollo/release-action@v1.8.6
+        with:
+          artifacts: C:\tools\cygwin\home\runneradmin\llvm-project-cygwin64.tar.gz
+          name: "llvm-project-cygwin64-${{ github.run_number }}"
+          tag: "llvm-project-cygwin64"
+          bodyFile: C:\tools\cygwin\home\runneradmin\out\llvm.spec
+          token: ${{ secrets.GITHUB_TOKEN }}
