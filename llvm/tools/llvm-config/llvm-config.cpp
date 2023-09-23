@@ -382,17 +382,17 @@ int main(int argc, char **argv) {
   /// removed or, as in the case of CMake's `BUILD_SHARED_LIBS`, never present
   /// in the first place. This can't be done at configure/build time.
 
-  StringRef SharedExt, SharedVersionedExt, SharedDir, SharedPrefix, StaticExt,
+  StringRef SharedExt, SharedVersionedExt, SharedDir, SharedPrefix, DylibDir, DylibPrefix, StaticExt,
       StaticPrefix, StaticDir = "lib";
   std::string DirSep = "/";
   const Triple HostTriple(Triple::normalize(LLVM_HOST_TRIPLE));
   if (HostTriple.isOSWindows()) {
-    SharedExt = "dll";
+    SharedExt = "dll.a";
     SharedVersionedExt = LLVM_DYLIB_VERSION ".dll";
     if (HostTriple.isOSCygMing()) {
-      SharedPrefix = "lib";
+      StaticPrefix = SharedPrefix = "lib";
       StaticExt = "a";
-      StaticPrefix = "lib";
+      DylibPrefix = "cyg";
     } else {
       StaticExt = "lib";
       DirSep = "\\";
@@ -404,21 +404,21 @@ int main(int argc, char **argv) {
       std::replace(ActiveIncludeOption.begin(), ActiveIncludeOption.end(), '/',
                    '\\');
     }
-    SharedDir = ActiveBinDir;
-    StaticDir = ActiveLibDir;
+    DylibDir = ActiveBinDir;
+    SharedDir = StaticDir = ActiveLibDir;
   } else if (HostTriple.isOSDarwin()) {
     SharedExt = "dylib";
     SharedVersionedExt = LLVM_DYLIB_VERSION ".dylib";
     StaticExt = "a";
-    StaticDir = SharedDir = ActiveLibDir;
+    StaticDir = SharedDir = DylibDir = ActiveLibDir;
     StaticPrefix = SharedPrefix = "lib";
   } else {
     // default to the unix values:
     SharedExt = "so";
     SharedVersionedExt = LLVM_DYLIB_VERSION ".so";
     StaticExt = "a";
-    StaticDir = SharedDir = ActiveLibDir;
-    StaticPrefix = SharedPrefix = "lib";
+    StaticDir = SharedDir = DylibDir = ActiveLibDir;
+    StaticPrefix = SharedPrefix = DylibPrefix = "lib";
   }
 
   const bool BuiltDyLib = !!LLVM_ENABLE_DYLIB;
@@ -428,7 +428,7 @@ int main(int argc, char **argv) {
 
   bool DyLibExists = false;
   const std::string DyLibName =
-      (SharedPrefix + "LLVM-" + SharedVersionedExt).str();
+      (DylibPrefix + "LLVM-" + SharedVersionedExt).str();
 
   // If LLVM_LINK_DYLIB is ON, the single shared library will be returned
   // for "--libs", etc, if they exist. This behaviour can be overridden with
@@ -436,7 +436,7 @@ int main(int argc, char **argv) {
   bool LinkDyLib = !!LLVM_LINK_DYLIB;
 
   if (BuiltDyLib) {
-    std::string path((SharedDir + DirSep + DyLibName).str());
+    std::string path((DylibDir + DirSep + DyLibName).str());
     if (DirSep == "\\") {
       std::replace(path.begin(), path.end(), '/', '\\');
     }
@@ -454,7 +454,7 @@ int main(int argc, char **argv) {
   /// extension. Returns true if Lib is in a recognized format.
   auto GetComponentLibraryNameSlice = [&](const StringRef &Lib,
                                           StringRef &Out) {
-    if (Lib.startswith("lib")) {
+    if (Lib.startswith("lib") || Lib.startswith("cyg")) {
       unsigned FromEnd;
       if (Lib.endswith(StaticExt)) {
         FromEnd = StaticExt.size() + 1;

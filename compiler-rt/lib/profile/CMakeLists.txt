@@ -87,7 +87,7 @@ endif()
 include_directories(..)
 include_directories(../../include)
 
-if(FUCHSIA OR UNIX)
+if(FUCHSIA OR UNIX AND NOT CYGWIN)
  set(EXTRA_FLAGS
      -fPIC
      -Wno-pedantic)

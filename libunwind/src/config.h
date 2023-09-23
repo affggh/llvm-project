@@ -28,7 +28,7 @@
     #define _LIBUNWIND_SUPPORT_COMPACT_UNWIND 1
     #define _LIBUNWIND_SUPPORT_DWARF_UNWIND 1
   #endif
-#elif defined(_WIN32)
+#elif defined(_WIN32) || defined(__CYGWIN__)
   #ifdef __SEH__
     #define _LIBUNWIND_SUPPORT_SEH_UNWIND 1
   #else
@@ -93,17 +93,15 @@
 #define _LIBUNWIND_WEAK_ALIAS(name, aliasname)                                 \
   extern "C" _LIBUNWIND_EXPORT __typeof(name) aliasname                        \
       __attribute__((weak, alias(#name)));
-#elif defined(_WIN32)
-#if defined(__MINGW32__)
+#elif defined(__MINGW32__) || defined(__CYGWIN__)
 #define _LIBUNWIND_WEAK_ALIAS(name, aliasname)                                 \
   extern "C" _LIBUNWIND_EXPORT __typeof(name) aliasname                        \
       __attribute__((alias(#name)));
-#else
+#elif defined(_WIN32)
 #define _LIBUNWIND_WEAK_ALIAS(name, aliasname)                                 \
   __pragma(comment(linker, "/alternatename:" SYMBOL_NAME(aliasname) "="        \
                                              SYMBOL_NAME(name)))               \
   extern "C" _LIBUNWIND_EXPORT __typeof(name) aliasname;
-#endif
 #else
 #error Unsupported target
 #endif

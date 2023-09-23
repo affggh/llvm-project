@@ -17,7 +17,7 @@
 #include <stdlib.h>
 #include <unwind.h>
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
   #include <windows.h>
   #include <ntverp.h>
 #endif
@@ -54,8 +54,8 @@
 // Provide a definition for the DISPATCHER_CONTEXT struct for old (Win7 and
 // earlier) SDKs.
 // MinGW-w64 has always provided this struct.
-  #if defined(_WIN32) && defined(_LIBUNWIND_TARGET_X86_64) && \
-      !defined(__MINGW32__) && VER_PRODUCTBUILD < 8000
+  #if (defined(_WIN32) || defined(__CYGWIN__)) && defined(_LIBUNWIND_TARGET_X86_64) && \
+      !defined(__MINGW64_VERSION_MAJOR) && VER_PRODUCTBUILD < 8000
 struct _DISPATCHER_CONTEXT {
   ULONG64 ControlPc;
   ULONG64 ImageBase;
@@ -477,7 +477,7 @@ public:
 #endif
 };
 
-#if defined(_LIBUNWIND_SUPPORT_SEH_UNWIND) && defined(_WIN32)
+#if defined(_LIBUNWIND_SUPPORT_SEH_UNWIND) && (defined(_WIN32) || defined(__CYGWIN__))
 
 /// \c UnwindCursor contains all state (including all register values) during
 /// an unwind.  This is normally stack-allocated inside a unw_cursor_t.

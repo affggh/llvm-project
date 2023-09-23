@@ -165,7 +165,7 @@
 #define NO_EXEC_STACK_DIRECTIVE
 #endif
 
-#elif defined(_WIN32)
+#elif defined(_WIN32) || defined(__CYGWIN__)
 
 #define SYMBOL_IS_FUNC(name)                                                   \
   .def name SEPARATOR                                                          \
@@ -183,7 +183,7 @@
 #endif
 #define HIDDEN_SYMBOL(name)
 
-#if defined(__MINGW32__)
+#if defined(__MINGW32__) || defined(__CYGWIN__)
 #define WEAK_ALIAS(name, aliasname)                                            \
   .globl SYMBOL_NAME(aliasname) SEPARATOR                                      \
   EXPORT_SYMBOL(aliasname) SEPARATOR                                           \

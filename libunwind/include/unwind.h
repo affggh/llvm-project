@@ -18,7 +18,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#if defined(__SEH__) && !defined(__USING_SJLJ_EXCEPTIONS__) && defined(_WIN32)
+#if defined(__SEH__) && !defined(__USING_SJLJ_EXCEPTIONS__) && (defined(_WIN32) || defined(__CYGWIN__))
 #include <windows.h>
 #include <ntverp.h>
 #endif
@@ -186,11 +186,11 @@ extern void *__deregister_frame_info_bases(const void *fde)
     LIBUNWIND_UNAVAIL;
 
 #if defined(__SEH__) && !defined(__USING_SJLJ_EXCEPTIONS__)
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__CYGWIN__)
 typedef struct _EXCEPTION_RECORD EXCEPTION_RECORD;
 typedef struct _CONTEXT CONTEXT;
 typedef struct _DISPATCHER_CONTEXT DISPATCHER_CONTEXT;
-#elif !defined(__MINGW32__) && VER_PRODUCTBUILD < 8000
+#elif !defined(__MINGW64_VERSION_MAJOR) && VER_PRODUCTBUILD < 8000
 typedef struct _DISPATCHER_CONTEXT DISPATCHER_CONTEXT;
 #endif
 // This is the common wrapper for GCC-style personality functions with SEH.

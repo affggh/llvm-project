@@ -696,6 +696,8 @@ function(cxx_link_system_libraries target)
 
   if (MINGW)
     target_link_libraries(${target} PRIVATE "${MINGW_LIBRARIES}")
+  elseif (CYGWIN)
+    target_link_libraries(${target} PUBLIC "${CYGWIN_LIBRARIES}")
   endif()
 
   if (MSVC)
@@ -835,7 +837,9 @@ endif()
 # By default libc++ on Windows expects to use a shared library, which requires
 # the headers to use DLL import/export semantics. However when building a
 # static library only we modify the headers to disable DLL import/export.
-if (DEFINED WIN32 AND LIBCXX_ENABLE_STATIC AND NOT LIBCXX_ENABLE_SHARED)
+if ((WIN32 OR CYGWIN) AND LIBCXX_ENABLE_STATIC AND NOT LIBCXX_ENABLE_SHARED)
+  list(APPEND LIBCXX_COMPILE_FLAGS -Xclang -flto-visibility-public-std)
+  add_definitions(-D_LIBCXXABI_DISABLE_VISIBILITY_ANNOTATIONS)
   message(STATUS "Generating custom __config for non-DLL Windows build")
   config_define(ON _LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS)
 endif()

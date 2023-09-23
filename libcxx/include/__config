@@ -70,7 +70,7 @@
 #    define _LIBCPP_OBJECT_FORMAT_ELF 1
 #  elif defined(__MACH__)
 #    define _LIBCPP_OBJECT_FORMAT_MACHO 1
-#  elif defined(_WIN32)
+#  elif defined(_WIN32) || defined(__CYGWIN__)
 #    define _LIBCPP_OBJECT_FORMAT_COFF 1
 #  elif defined(__wasm__)
 #    define _LIBCPP_OBJECT_FORMAT_WASM 1
@@ -457,6 +457,10 @@
 #    define _LIBCPP_BIG_ENDIAN
 #  endif // __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 
+#if defined(__CYGWIN__)
+#  define _LIBCPP_SHORT_WCHAR   1
+#endif
+
 #  if defined(_WIN32)
 #    define _LIBCPP_WIN32API
 #    define _LIBCPP_SHORT_WCHAR 1
@@ -750,6 +754,10 @@ typedef __char32_t char32_t;
 // TODO: We provide a escape hatch with _LIBCPP_NO_ABI_TAG for folks who want to avoid increasing
 //       the length of symbols with an ABI tag. In practice, we should remove the escape hatch and
 //       use compression mangling instead, see https://github.com/itanium-cxx-abi/cxx-abi/issues/70.
+#  ifdef __CYGWIN__
+#    define _LIBCPP_NO_ABI_TAG 1
+#  endif
+
 #  ifndef _LIBCPP_NO_ABI_TAG
 #    define _LIBCPP_HIDE_FROM_ABI                                                                                      \
       _LIBCPP_HIDDEN _LIBCPP_EXCLUDE_FROM_EXPLICIT_INSTANTIATION                                                       \
@@ -774,7 +782,11 @@ typedef __char32_t char32_t;
 #  endif
 
 // Just so we can migrate to the new macros gradually.
-#  define _LIBCPP_INLINE_VISIBILITY _LIBCPP_HIDE_FROM_ABI
+#  ifdef _LIBCPP_BUILDING_LIBRARY
+#    define _LIBCPP_INLINE_VISIBILITY
+#  else
+#    define _LIBCPP_INLINE_VISIBILITY _LIBCPP_HIDE_FROM_ABI
+#  endif
 
 // Inline namespaces are available in Clang/GCC/MSVC regardless of C++ dialect.
 // clang-format off
@@ -1033,7 +1045,15 @@ __sanitizer_verify_double_ended_contiguous_container(const void*, const void*, c
 #  endif
 
 #  ifndef _LIBCPP_WEAK
-#    define _LIBCPP_WEAK __attribute__((__weak__))
+#    ifdef __CYGWIN__
+#      define _LIBCPP_WEAK
+#    else
+#      define _LIBCPP_WEAK __attribute__((__weak__))
+#    endif
+#  endif
+
+#  ifdef __CYGWIN__
+#    define _LIBCPP_HAS_NO_THREADS
 #  endif
 
 // Thread API
@@ -1053,7 +1073,8 @@ __sanitizer_verify_double_ended_contiguous_container(const void*, const void*, c
         defined(__APPLE__) ||                                                                                          \
         defined(__MVS__) ||                                                                                            \
         defined(_AIX) ||                                                                                               \
-        defined(__EMSCRIPTEN__)
+        defined(__EMSCRIPTEN__) ||                                                                                     \
+        defined(__CYGWIN__)
 // clang-format on
 #      define _LIBCPP_HAS_THREAD_API_PTHREAD
 #    elif defined(__Fuchsia__)
@@ -1181,9 +1202,9 @@ __sanitizer_verify_double_ended_contiguous_container(const void*, const void*, c
 #    define _LIBCPP_THREAD_SAFETY_ANNOTATION(x)
 #  endif
 
-#  if _LIBCPP_STD_VER >= 20
+#  if _LIBCPP_STD_VER >= 20 && !defined(__CYGWIN__)
 #    define _LIBCPP_CONSTINIT constinit
-#  elif __has_attribute(__require_constant_initialization__)
+#  elif __has_attribute(__require_constant_initialization__) && !defined(__CYGWIN__)
 #    define _LIBCPP_CONSTINIT __attribute__((__require_constant_initialization__))
 #  else
 #    define _LIBCPP_CONSTINIT

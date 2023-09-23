@@ -256,8 +256,9 @@ if (LIBCXX_ENABLE_SHARED)
         string(APPEND link_libraries " ${CMAKE_LINK_LIBRARY_FLAG}unwind")
       endif()
     endif()
-
-    set(linker_script "INPUT($<TARGET_SONAME_FILE_NAME:cxx_shared> ${link_libraries})")
+    if (NOT CYGWIN)
+      set(linker_script "INPUT($<TARGET_SONAME_FILE_NAME:cxx_shared> ${link_libraries})")
+    endif()
     add_custom_command(TARGET cxx_shared POST_BUILD
       COMMAND "${CMAKE_COMMAND}" -E remove "$<TARGET_LINKER_FILE:cxx_shared>"
       COMMAND "${CMAKE_COMMAND}" -E echo "${linker_script}" > "$<TARGET_LINKER_FILE:cxx_shared>"

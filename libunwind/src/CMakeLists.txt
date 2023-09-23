@@ -82,6 +82,7 @@ endif()
 add_link_flags_if(CXX_SUPPORTS_UNWINDLIB_EQ_NONE_FLAG --unwindlib=none)
 
 # MINGW_LIBRARIES is defined in config-ix.cmake
+add_library_flags_if(CYGWIN "${CYGWIN_LIBRARIES}")
 add_library_flags_if(MINGW "${MINGW_LIBRARIES}")
 
 if (LIBUNWIND_ENABLE_SHARED AND

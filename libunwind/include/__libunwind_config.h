@@ -46,7 +46,7 @@
 #  define _LIBUNWIND_HIGHEST_DWARF_REGISTER _LIBUNWIND_HIGHEST_DWARF_REGISTER_X86
 # elif defined(__x86_64__)
 #  define _LIBUNWIND_TARGET_X86_64 1
-#  if defined(_WIN64)
+#  if defined(_WIN64) || defined(__CYGWIN__)
 #    define _LIBUNWIND_CONTEXT_SIZE 54
 #    ifdef __SEH__
 #      define _LIBUNWIND_CURSOR_SIZE 204

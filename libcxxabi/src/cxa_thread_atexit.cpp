@@ -112,9 +112,12 @@ extern "C" {
 #ifdef HAVE___CXA_THREAD_ATEXIT_IMPL
     return __cxa_thread_atexit_impl(dtor, obj, dso_symbol);
 #else
+#if !(defined __CYGWIN__ || defined _WIN32)
     if (__cxa_thread_atexit_impl) {
       return __cxa_thread_atexit_impl(dtor, obj, dso_symbol);
-    } else {
+    } else
+#endif
+   {
       // Initialize the dtors std::__libcpp_tls_key (uses __cxa_guard_*() for
       // one-time initialization and __cxa_atexit() for destruction)
       static DtorsManager manager;

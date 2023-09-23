@@ -65,6 +65,18 @@ if (CXX_SUPPORTS_NOSTDLIBXX_FLAG OR C_SUPPORTS_NODEFAULTLIBS_FLAG)
       list(APPEND CMAKE_REQUIRED_LIBRARIES gcc)
     endif ()
   endif ()
+  if (CYGWIN)
+    # Cygwin requires quite a few "C" runtime libraries in order for basic
+    # programs to link successfully with -nodefaultlibs.
+    if (LIBUNWIND_USE_COMPILER_RT)
+      set(CYGWIN_RUNTIME ${LIBUNWIND_BUILTINS_LIBRARY})
+    else ()
+      set(CYGWIN_RUNTIME gcc_s gcc)
+    endif()
+    set(CYGWIN_LIBRARIES ${MINGW_RUNTIME} cygwin advapi32 psapi
+                        shell32 user32 kernel32 ${CYGWIN_RUNTIME})
+    list(APPEND CMAKE_REQUIRED_LIBRARIES ${CYGWIN_LIBRARIES})
+  endif()
   if (MINGW)
     # Mingw64 requires quite a few "C" runtime libraries in order for basic
     # programs to link successfully with -nodefaultlibs.

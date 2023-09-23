@@ -43,7 +43,7 @@
   #define LIBUNWIND_AVAIL
 #endif
 
-#if defined(_WIN32) && defined(__SEH__)
+#if (defined(_WIN32) || defined(__CYGWIN__)) && defined(__SEH__)
   #define LIBUNWIND_CURSOR_ALIGNMENT_ATTR __attribute__((__aligned__(16)))
 #else
   #define LIBUNWIND_CURSOR_ALIGNMENT_ATTR

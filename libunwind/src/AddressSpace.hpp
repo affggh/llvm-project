@@ -540,7 +540,7 @@ inline bool LocalAddressSpace::findUnwindSections(pint_t targetAddr,
                              (void *)info.arm_section, (void *)info.arm_section_length);
   if (info.arm_section && info.arm_section_length)
     return true;
-#elif defined(_LIBUNWIND_SUPPORT_DWARF_UNWIND) && defined(_WIN32)
+#elif defined(_LIBUNWIND_SUPPORT_DWARF_UNWIND) && (defined(_WIN32) || defined(__CYGWIN__))
   HMODULE mods[1024];
   HANDLE process = GetCurrentProcess();
   DWORD needed;
@@ -580,7 +580,7 @@ inline bool LocalAddressSpace::findUnwindSections(pint_t targetAddr,
     }
   }
   return false;
-#elif defined(_LIBUNWIND_SUPPORT_SEH_UNWIND) && defined(_WIN32)
+#elif defined(_LIBUNWIND_SUPPORT_SEH_UNWIND) && (defined(_WIN32) || defined(__CYGWIN__))
   // Don't even bother, since Windows has functions that do all this stuff
   // for us.
   (void)targetAddr;

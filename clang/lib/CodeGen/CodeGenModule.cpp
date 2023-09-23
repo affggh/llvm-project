@@ -1420,7 +1420,7 @@ static bool shouldAssumeDSOLocal(const CodeGenModule &CGM,
 
   const llvm::Triple &TT = CGM.getTriple();
   const auto &CGOpts = CGM.getCodeGenOpts();
-  if (TT.isWindowsGNUEnvironment()) {
+  if (TT.isWindowsGNUEnvironment() || TT.isWindowsCygwinEnvironment()) {
     // In MinGW, variables without DLLImport can still be automatically
     // imported from a DLL by the linker; don't mark variables that
     // potentially could come from another DLL as DSO local.
@@ -4569,7 +4569,7 @@ CodeGenModule::CreateRuntimeFunction(llvm::FunctionType *FTy, StringRef Name,
       // will link their standard library statically or dynamically. Marking
       // functions imported when they are not imported can cause linker errors
       // and warnings.
-      if (!Local && getTriple().isWindowsItaniumEnvironment() &&
+      if (!Local && (getTriple().isWindowsItaniumEnvironment() || getTriple().isWindowsCygwinEnvironment()) &&
           !getCodeGenOpts().LTOVisibilityPublicStd) {
         const FunctionDecl *FD = GetRuntimeFunctionDecl(Context, Name);
         if (!FD || FD->hasAttr<DLLImportAttr>()) {

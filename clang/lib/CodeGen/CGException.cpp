@@ -116,7 +116,11 @@ EHPersonality::GNU_ObjC_SEH = {"__gnu_objc_personality_seh0", "objc_exception_th
 const EHPersonality
 EHPersonality::GNU_ObjCXX = { "__gnustep_objcxx_personality_v0", nullptr };
 const EHPersonality
+EHPersonality::GNU_ObjCXX_SEH = { "__gnustep_objcxx_personality_seh0", nullptr };
+const EHPersonality
 EHPersonality::GNUstep_ObjC = { "__gnustep_objc_personality_v0", nullptr };
+const EHPersonality
+EHPersonality::GNUstep_ObjC_SEH = { "__gnustep_objc_personality_seh0", nullptr };
 const EHPersonality
 EHPersonality::MSVC_except_handler = { "_except_handler3", nullptr };
 const EHPersonality
@@ -157,6 +161,8 @@ static const EHPersonality &getObjCPersonality(const TargetInfo &Target,
     return EHPersonality::NeXT_ObjC;
   case ObjCRuntime::GNUstep:
     if (L.ObjCRuntime.getVersion() >= VersionTuple(1, 7))
+      if (L.hasSjLjExceptions())
+        return EHPersonality::GNUstep_ObjC_SEH;
       return EHPersonality::GNUstep_ObjC;
     [[fallthrough]];
   case ObjCRuntime::GCC:
@@ -210,6 +216,8 @@ static const EHPersonality &getObjCXXPersonality(const TargetInfo &Target,
     return getObjCPersonality(Target, L);
 
   case ObjCRuntime::GNUstep:
+    if (L.hasSjLjExceptions())
+      return EHPersonality::GNU_ObjCXX_SEH;
     return EHPersonality::GNU_ObjCXX;
 
   // The GCC runtime's personality function inherently doesn't support

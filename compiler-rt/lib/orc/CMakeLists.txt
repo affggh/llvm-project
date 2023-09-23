@@ -117,7 +117,7 @@ if (APPLE)
     LINK_LIBS ${ORC_LINK_LIBS}
     PARENT_TARGET orc)
 else() # not Apple
-  if (WIN32)
+  if (WIN32 OR CYGWIN)
     set(ORC_BUILD_TYPE STATIC)
 
     set(ORC_IMPL_HEADERS

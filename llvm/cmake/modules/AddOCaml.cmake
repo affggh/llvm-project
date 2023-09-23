@@ -42,8 +42,13 @@ function(add_ocaml_library name)
     list(APPEND ocaml_outputs
          "${bin}/lib${name}${CMAKE_STATIC_LIBRARY_SUFFIX}")
     if ( BUILD_SHARED_LIBS )
+    if (CYGWIN)
+      list(APPEND ocaml_outputs
+           "${bin}/dll${name}.so")
+    else()
       list(APPEND ocaml_outputs
            "${bin}/dll${name}${CMAKE_SHARED_LIBRARY_SUFFIX}")
+    endif()
     endif()
   endif()
   if( HAVE_OCAMLOPT )

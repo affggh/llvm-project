@@ -66,6 +66,17 @@ if (CXX_SUPPORTS_NOSTDLIBXX_FLAG OR C_SUPPORTS_NODEFAULTLIBS_FLAG)
                         shell32 user32 kernel32 mingw32 ${MINGW_RUNTIME}
                         moldname mingwex msvcrt)
     list(APPEND CMAKE_REQUIRED_LIBRARIES ${MINGW_LIBRARIES})
+  elseif (CYGWIN)
+    # Cygwin requires quite a few "C" runtime libraries in order for basic
+    # programs to link successfully with -nodefaultlibs.
+    if (LIBCXXABI_USE_COMPILER_RT)
+      set(CYGWIN_RUNTIME ${LIBCXXABI_BUILTINS_LIBRARY})
+    else ()
+      set(CYGWIN_RUNTIME gcc_s gcc)
+    endif()
+    set(CYGWIN_LIBRARIES ${CYGWIN_RUNTIME} cygwin advapi32
+                        shell32 user32 kernel32 ${CYGWIN_RUNTIME})
+    list(APPEND CMAKE_REQUIRED_LIBRARIES ${CYGWIN_LIBRARIES})
   endif()
   if (CMAKE_C_FLAGS MATCHES -fsanitize OR CMAKE_CXX_FLAGS MATCHES -fsanitize)
     set(CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS} -fno-sanitize=all")

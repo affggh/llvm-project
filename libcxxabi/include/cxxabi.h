@@ -26,7 +26,7 @@
 #ifdef __cplusplus
 
 namespace std {
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__CYGWIN__)
 class _LIBCXXABI_TYPE_VIS type_info; // forward declaration
 #else
 class type_info; // forward declaration
@@ -160,7 +160,7 @@ __cxa_decrement_exception_refcount(void *primary_exception) throw();
 extern _LIBCXXABI_FUNC_VIS bool __cxa_uncaught_exception() throw();
 extern _LIBCXXABI_FUNC_VIS unsigned int __cxa_uncaught_exceptions() throw();
 
-#if defined(__linux__) || defined(__Fuchsia__)
+#if defined(__linux__) || defined(__Fuchsia__) || defined(__CYGWIN__)
 // Linux and Fuchsia TLS support. Not yet an official part of the Itanium ABI.
 // https://sourceware.org/glibc/wiki/Destructor%20support%20for%20thread_local%20variables
 extern _LIBCXXABI_FUNC_VIS int __cxa_thread_atexit(void (*)(void *), void *,

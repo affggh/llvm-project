@@ -326,7 +326,7 @@ if (NOT MSVC)
   # Darwin x86_64 Haswell
   set(x86_64h_SOURCES ${x86_64_SOURCES})
 
-  if (WIN32)
+  if (WIN32 OR CYGWIN)
     set(x86_64_SOURCES
       ${x86_64_SOURCES}
       x86_64/chkstk.S
@@ -359,7 +359,7 @@ if (NOT MSVC)
     )
   endif()
 
-  if (WIN32)
+  if (WIN32 OR CYGWIN)
     set(i386_SOURCES
       ${i386_SOURCES}
       i386/chkstk.S

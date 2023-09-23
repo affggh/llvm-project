@@ -26,6 +26,13 @@
 #define EMUTLS_SKIP_DESTRUCTOR_ROUNDS 0
 #endif
 
+#ifdef __CYGWIN__
+// Cygwin is not support 32bit anymore
+#ifndef __x86_64__
+#define __x86_64__ 1
+#endif
+#endif
+
 #if defined(_MSC_VER) && !defined(__clang__)
 // MSVC raises a warning about a nonstandard extension being used for the 0
 // sized element in this array. Disable this for warn-as-error builds.

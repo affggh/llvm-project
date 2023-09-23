@@ -707,7 +707,7 @@ ORC_RT_INTERFACE void __stdcall __orc_rt_coff_cxx_throw_exception(
       reinterpret_cast<ULONG_PTR>(BaseAddr),
   };
   RaiseException(EH_EXCEPTION_NUMBER, EXCEPTION_NONCONTINUABLE,
-                 _countof(parameters), parameters);
+                 sizeof(parameters), parameters);
 }
 
 //------------------------------------------------------------------------------

@@ -6250,6 +6250,12 @@ void Clang::ConstructJob(Compilation &C, const JobAction &JA,
                    options::OPT_foperator_names, false))
     CmdArgs.push_back("-fno-operator-names");
 
+  if (Triple.isOSCygMing() && Args.hasArg(options::OPT_static)) {
+    CmdArgs.push_back("-flto-visibility-public-std");
+    if (getToolChain().GetCXXStdlibType(Args) == ToolChain::CST_Libcxx)
+      CmdArgs.push_back("-D_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS");
+  }
+
   // Forward -f (flag) options which we can pass directly.
   Args.AddLastArg(CmdArgs, options::OPT_femit_all_decls);
   Args.AddLastArg(CmdArgs, options::OPT_fheinous_gnu_extensions);
