@@ -44,8 +44,8 @@ jobs:
             -S "llvm"
 
             -DCMAKE_INSTALL_PREFIX="$HOME/out"
-            -DLLVM_TARGETS_TO_BUILD="host"
-            -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra;lld"
+            -DLLVM_TARGETS_TO_BUILD="$TARGET_TO_BUILD"
+            -DLLVM_ENABLE_PROJECTS="$PROJECTS"
             -DLLVM_ENABLE_RUNTIMES="$RUNTIMES"
             -DLLVM_BUILD_RUNTIME=ON
 
