@@ -31,6 +31,7 @@ jobs:
       - name: Building
         shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
         run: |
+          export PATH="/usr/local/bin:/usr/bin"
           cd llvm
           # build
           CMAKE_OPTIONS=()
